@@ -13,13 +13,12 @@ use consik\yii2websocket\WebSocketServer;
 
 class SudokuServer extends WebSocketServer
 {
-
+    public $dimensions = 9;
     public function init()
     {
         parent::init();
 
         // build sudoku 9*9 field with random initial data
-
 
         $this->on(self::EVENT_CLIENT_MESSAGE, function (WSClientMessageEvent $e) {
             echo 'Message from client: '.$e->message.PHP_EOL;
@@ -42,18 +41,89 @@ class SudokuServer extends WebSocketServer
         });
     }
 
-    private function generate($dimensions = 9){
-        for ($column = 1; $column <= $dimensions; $column++){
-            for ($row = 1; $row <= $dimensions; $row++){
+    private function generate(){
+        for ($column = 1; $column <= $this->dimensions; $column++){
+            for ($row = 1; $row <= $this->dimensions; $row++){
                     echo 'Generating value for ['.$column.':'.$row.']'.PHP_EOL;
-                    $this->currentMatrix[$column][$row]=mt_rand(1,9);
+                    $candidate=mt_rand(1,9);
+                    $attempt=$this->setCellValue($column, $row, $candidate);
+                    //print_r($attempt);
+                    if ($attempt['isAcceptableValue']){
+                        echo $candidate.' set for ['.$column.':'.$row.']'.PHP_EOL;
+                    }
+                    else {
+                        echo $candidate.' declined for ['.$column.':'.$row.'], reason: '.$attempt['message'].PHP_EOL;
+                    }
             }
         }
         echo 'Generation done'.PHP_EOL;
-        print_r($this->currentMatrix);
+        //print_r($this->currentMatrix);
     }
 
     private $currentMatrix = [];
+
+    /**
+     * @param $column
+     * @param $row
+     * @param $value
+     * @return array
+     */
+    private function setCellValue($column, $row, $value){
+        echo 'Processing ['.$column.':'.$row.'] attempt with value '.$value.PHP_EOL;
+        $cell=false;
+        if (!$column or !$row or $column > $this->dimensions or $row > $this->dimensions or !$value){
+            return ['isAcceptableValue'=>$cell, 'message'=>'Value or coordinates unacceptable'];
+        }
+        // search in row equal values
+        // $column_ not the same as $column param, this is internal iterator
+        for ($column_ = 1; $column_ <= $this->dimensions; $column_++){
+            if (empty($this->currentMatrix[$column_][$row])){
+                //echo 'Empty ['.$column_.':'.$row.']'.PHP_EOL;
+                continue;
+            }
+            if ($this->currentMatrix[$column_][$row] == $value){
+                return ['isAcceptableValue'=>$cell, 'message'=>'In row '.$row.' we already have value '.$value];
+            }
+        }
+        // search in column equal values
+        // $row_ not the same as $row param, this is internal iterator
+        //echo 'Searching value '.$value.' in column '.$column.PHP_EOL;
+        for ($row_ = 1; $row_ <= $this->dimensions; $row_++){
+            if (empty($this->currentMatrix[$column][$row_])){
+                //echo 'Empty ['.$column.':'.$row_.']'.PHP_EOL;
+                continue;
+            }
+           // echo 'Compare with value '.$this->currentMatrix[$column][$row_].' in row '.$row_.PHP_EOL;
+            if ($this->currentMatrix[$column][$row_] == $value){
+                return ['isAcceptableValue'=>$cell, 'message'=>'In column '.$column.' we already have value '.$value];
+            }
+        }
+
+        // find block of 3*3 by coordinates and check value in this block
+        $maxBlockCoordinates=$this->dimensions/3;
+        //detect block column & row index
+        // 1 2 3
+        // 4 5 6
+        // 7 8 9
+        $blockColumn=ceil($column/$maxBlockCoordinates);
+        $blockRow=ceil($row/$maxBlockCoordinates);
+        echo 'Checking equal values in block ['.$blockColumn.':'.$blockRow.']'.PHP_EOL;
+        for ($column_ = $blockColumn*$maxBlockCoordinates-2; $column_ <= $blockColumn*$maxBlockCoordinates; $column_++){
+            for ($row_ = $blockRow*$maxBlockCoordinates-2; $row_ <= $blockRow*$maxBlockCoordinates; $row_++) {
+                if (empty($this->currentMatrix[$column_][$row_])) {
+                    //echo 'Empty [' . $column_ . ':' . $row . '] in block processing' . PHP_EOL;
+                    continue;
+                }
+                if ($this->currentMatrix[$column_][$row_] == $value) {
+                    return ['isAcceptableValue' => $cell, 'message' => 'In block ['.$blockColumn.':'.$blockRow.'] we already have value ' . $value];
+                }
+            }
+        }
+
+        $this->currentMatrix[$column][$row]=$value;
+        return ['isAcceptableValue'=>true, 'message'=>'Value successfully set'];
+
+    }
 
 
 }
