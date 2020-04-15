@@ -10,6 +10,7 @@ namespace app\wss;
 use consik\yii2websocket\events\WSClientMessageEvent;
 use consik\yii2websocket\events\WSClientEvent;
 use consik\yii2websocket\WebSocketServer;
+use Yii;
 
 class SudokuServer extends WebSocketServer
 {
@@ -28,13 +29,21 @@ class SudokuServer extends WebSocketServer
             echo 'Client connected to game:'.PHP_EOL;
             if ($this->currentMatrix){
                 echo 'We allready have started game, send it to new client'.PHP_EOL;
-                $e->client->send(json_encode($this->currentMatrix));
                 echo 'After this connection we have '.count($this->clients).' clients online:'.PHP_EOL;
             }
             else {
-                echo 'First client, the game is not generated, let me do it'.PHP_EOL;
-                $this->generate();
+                echo 'First client, the game is not generated, let me do it, if no one cached before expired'.PHP_EOL;
+                if(Yii::$app->cache->exists('sudokuMatrix')){
+                    echo 'Found cached game, let me load it'.PHP_EOL;
+                    $this->currentMatrix = json_decode(Yii::$app->cache->get('sudokuMatrix'), true);
+                }else{
+                    $this->generate();
+                    Yii::$app->cache->set( 'sudokuMatrix', json_encode($this->currentMatrix),3600);
+                }
+
+
             }
+            $e->client->send(json_encode($this->currentMatrix));
 
 
 
