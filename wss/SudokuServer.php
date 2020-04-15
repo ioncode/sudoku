@@ -43,10 +43,7 @@ class SudokuServer extends WebSocketServer
 
 
             }
-            $e->client->send(json_encode($this->currentMatrix));
-
-
-
+            $e->client->send(json_encode(['matrix'=>$this->currentMatrix]));
         });
     }
 
@@ -62,6 +59,7 @@ class SudokuServer extends WebSocketServer
                     }
                     else {
                         echo $candidate.' declined for ['.$column.':'.$row.'], reason: '.$attempt['message'].PHP_EOL;
+                        $this->currentMatrix[$column][$row]=0;
                     }
             }
         }
