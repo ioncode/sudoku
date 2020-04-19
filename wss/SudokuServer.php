@@ -11,6 +11,7 @@ use consik\yii2websocket\events\WSClientMessageEvent;
 use consik\yii2websocket\events\WSClientEvent;
 use consik\yii2websocket\WebSocketServer;
 use Yii;
+use AbcAeffchen\sudoku\Sudoku;
 
 class SudokuServer extends WebSocketServer
 {
@@ -23,7 +24,49 @@ class SudokuServer extends WebSocketServer
 
         $this->on(self::EVENT_CLIENT_MESSAGE, function (WSClientMessageEvent $e) {
             echo 'Message from client: '.$e->message.PHP_EOL;
-            $e->client->send( $e->message );
+            if ($json = json_decode($e->message, true)){
+                echo 'Received json message, try extract commands'.PHP_EOL;
+                print_r($json);
+                if ($json['command'] == 'setCell'){
+                    echo 'Command to set cell ['.$json['coordinates']['column'].':'.$json['coordinates']['row'].'] with value '.$json['value'].PHP_EOL;
+                    $attempt=$this->setCellValue($json['coordinates']['column'], $json['coordinates']['row'], $json['value']);
+                    echo $attempt['message'].PHP_EOL;
+                    //print_r($this->currentMatrix);
+                    if ($attempt['isAcceptableValue']){
+                        echo 'Value accepted'.PHP_EOL;
+
+                        // check if it was last cell set author to top list
+                        $continue=false;
+                        foreach ($this->currentMatrix as $column){
+                            foreach ($column as $cell){
+                                if ($cell === null){
+                                    $continue=true;
+                                    break 2;
+                                }
+                            }
+                        }
+                        if ($continue){
+                            echo 'Game is not finished, waiting for new commands'.PHP_EOL;
+                        }
+                        else {
+                            // set client to top & broadcast new game & top 10
+                            if(!empty($clientName = $json['clientName'])){
+                                echo $clientName.' win!'.PHP_EOL;
+                                $this->addToTop($clientName);
+                            }
+                            $this->generate();
+                            Yii::$app->cache->set( 'sudokuMatrix', json_encode($this->currentMatrix),3600);
+
+                        }
+                        // send updated matrix to every client
+                        $this->broadcast(json_encode(['matrix'=>$this->currentMatrix, 'top'=>$this->getTop()]));
+                    }
+                    else {
+                        $this->broadcast(json_encode(['message'=>'Value declined']));
+                    }
+                }
+            }
+            //$e->client->send( $e->message );
         });
         $this->on(self::EVENT_CLIENT_CONNECTED, function (WSClientEvent $e) {
             echo 'Client connected to game:'.PHP_EOL;
@@ -43,12 +86,18 @@ class SudokuServer extends WebSocketServer
 
 
             }
-            $e->client->send(json_encode(['matrix'=>$this->currentMatrix]));
+            $e->client->send(json_encode(['matrix'=>$this->currentMatrix, 'top'=>$this->getTop()]));
         });
     }
 
     private function generate(){
-        for ($column = 1; $column <= $this->dimensions; $column++){
+
+        $this->currentMatrix = Sudoku::solve(Sudoku::generate($this->dimensions, 6));
+        // due time limitations on solving self generated matrix let me show solved matrix without last 4 random cells
+        for ($i = 0; $i<3; $i++){
+            $this->currentMatrix[mt_rand(0,8)][mt_rand(0,8)]=null;
+        }
+        /*for ($column = 1; $column <= $this->dimensions; $column++){
             for ($row = 1; $row <= $this->dimensions; $row++){
                     echo 'Generating value for ['.$column.':'.$row.']'.PHP_EOL;
                     $candidate=mt_rand(1,9);
@@ -62,7 +111,7 @@ class SudokuServer extends WebSocketServer
                         $this->currentMatrix[$column][$row]=0;
                     }
             }
-        }
+        }*/
         echo 'Generation done'.PHP_EOL;
         //print_r($this->currentMatrix);
     }
@@ -78,8 +127,12 @@ class SudokuServer extends WebSocketServer
     private function setCellValue($column, $row, $value){
         echo 'Processing ['.$column.':'.$row.'] attempt with value '.$value.PHP_EOL;
         $cell=false;
-        if (!$column or !$row or $column > $this->dimensions or $row > $this->dimensions or !$value){
+        if ($column > $this->dimensions or $row > $this->dimensions or !$value){
             return ['isAcceptableValue'=>$cell, 'message'=>'Value or coordinates unacceptable'];
+        }
+        if (!empty($this->currentMatrix[$column][$row])){
+            echo 'Value already set'.PHP_EOL;
+            return ['isAcceptableValue'=>$cell, 'message'=>'Value already set'];
         }
         // search in row equal values
         // $column_ not the same as $column param, this is internal iterator
@@ -112,11 +165,11 @@ class SudokuServer extends WebSocketServer
         // 1 2 3
         // 4 5 6
         // 7 8 9
-        $blockColumn=ceil($column/$maxBlockCoordinates);
-        $blockRow=ceil($row/$maxBlockCoordinates);
+        $blockColumn=ceil(($column+1)/$maxBlockCoordinates);
+        $blockRow=ceil(($row+1)/$maxBlockCoordinates);
         echo 'Checking equal values in block ['.$blockColumn.':'.$blockRow.']'.PHP_EOL;
-        for ($column_ = $blockColumn*$maxBlockCoordinates-2; $column_ <= $blockColumn*$maxBlockCoordinates; $column_++){
-            for ($row_ = $blockRow*$maxBlockCoordinates-2; $row_ <= $blockRow*$maxBlockCoordinates; $row_++) {
+        for ($column_ = $blockColumn*$maxBlockCoordinates-3; $column_ < $blockColumn*$maxBlockCoordinates; $column_++){
+            for ($row_ = $blockRow*$maxBlockCoordinates-3; $row_ < $blockRow*$maxBlockCoordinates; $row_++) {
                 if (empty($this->currentMatrix[$column_][$row_])) {
                     //echo 'Empty [' . $column_ . ':' . $row . '] in block processing' . PHP_EOL;
                     continue;
@@ -132,5 +185,43 @@ class SudokuServer extends WebSocketServer
 
     }
 
+    public function broadcast($message){
+        foreach($this->clients as $client){
+            $client->send($message);
+        }
+    }
+
+    private function addToTop($clientName){
+        if (Yii::$app->cache->exists('sudokuTop')){
+            $top=json_decode(Yii::$app->cache->get('sudokuTop'), true);
+            $wasInTop=false;
+            foreach ($top as $client=>$wins){
+                print_r([$client, $wins]);
+                if ($client === $clientName){
+                    $top[$clientName]=$wins+1;
+                    $wasInTop=true;
+                    break;
+
+                }
+            }
+            if (!$wasInTop){
+                $top[$clientName]=1;
+            }
+        }
+        else {
+            $top[$clientName]=1;
+        }
+        Yii::$app->cache->set('sudokuTop', json_encode($top));
+        print_r($top);
+    }
+
+    public function getTop($places = 10){
+        if (Yii::$app->cache->exists('sudokuTop')){
+            $top=json_decode(Yii::$app->cache->get('sudokuTop'), true);
+            arsort($top);
+            return array_slice($top, 0, $places);
+        }
+
+    }
 
 }

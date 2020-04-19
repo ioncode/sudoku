@@ -15,10 +15,12 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=5.6.0",
+        "ext-json": "*",
         "yiisoft/yii2": "~2.0.14",
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
-        "consik/yii2-websocket": "^1.0"
+        "consik/yii2-websocket": "^1.0",
+        "abcaeffchen/sudoku-php": "~1.0.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
