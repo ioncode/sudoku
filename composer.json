@@ -1,6 +1,6 @@
 {
     "name": "sudoku websocket app",
-    "description": "simple concurent sudoku game",
+    "description": "simple concurrent sudoku game",
     "keywords": ["yii2", "framework", "basic", "project template"],
     "homepage": "http://www.yiiframework.com/",
     "type": "project",
