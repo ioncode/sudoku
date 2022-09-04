@@ -8,13 +8,14 @@
 namespace app\commands;
 
 use app\wss\SudokuServer;
+use Yii;
 use yii\console\Controller;
 
 class SudokuController extends Controller
 {
-    public function actionStart($port = null)
+    public function actionStart($dimensions = 9, int $port = null)
     {
-        $server = new SudokuServer();
+        $server = new SudokuServer(intval($dimensions));
         if ($port) {
             $server->port = $port;
         }

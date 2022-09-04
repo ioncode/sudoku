@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+
+defined('YII_DEBUG') or define('YII_DEBUG', true);
+
+try {
+    require(__DIR__ . '/vendor/autoload.php');
+    require(__DIR__ . '/vendor/yiisoft/yii2/Yii.php');
+
+    $application = new yii\console\Application([
+        'id'                  => 'sudoku',
+        'basePath'            => __DIR__ . '/',
+        'controllerNamespace' => 'app\commands',
+        'components'          => [
+            'cache' => [
+                'class' => 'yii\caching\FileCache',
+            ],
+        ],
+    ]);
+
+    $exitCode = $application->run();
+    exit($exitCode);
+} catch (Throwable $throwable) {
+    echo 'Something wrong with application bootstrap:' . $throwable;
+}
