@@ -99,7 +99,7 @@
             "version": "3.6.1",
             "source": {
                 "type": "git",
-                "url": "git@github.com:jquery/jquery-dist.git",
+                "url": "https://github.com/jquery/jquery-dist.git",
                 "reference": "3711efedf0ca2e998cd0417324f717f2e0b828ec"
             },
             "dist": {
@@ -2140,12 +2140,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "89a489b85ac02f28a1ea9af2c969421c3e31f621"
+                "reference": "8366be9cd90d9918a8f91757b6fbc09652b4e96b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/89a489b85ac02f28a1ea9af2c969421c3e31f621",
-                "reference": "89a489b85ac02f28a1ea9af2c969421c3e31f621",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/8366be9cd90d9918a8f91757b6fbc09652b4e96b",
+                "reference": "8366be9cd90d9918a8f91757b6fbc09652b4e96b",
                 "shasum": ""
             },
             "require": {
@@ -2255,7 +2255,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-08-29T07:43:00+00:00"
+            "time": "2022-09-05T11:32:20+00:00"
         },
         {
             "name": "yiisoft/yii2-bootstrap",
@@ -7075,16 +7075,16 @@
         },
         {
             "name": "yiisoft/yii2-debug",
-            "version": "2.1.19",
+            "version": "2.1.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-debug.git",
-                "reference": "84d20d738b0698298f851fcb6fc25e748d759223"
+                "reference": "9ca499a9c623d72736954ff9a7a8d13cccee2082"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-debug/zipball/84d20d738b0698298f851fcb6fc25e748d759223",
-                "reference": "84d20d738b0698298f851fcb6fc25e748d759223",
+                "url": "https://api.github.com/repos/yiisoft/yii2-debug/zipball/9ca499a9c623d72736954ff9a7a8d13cccee2082",
+                "reference": "9ca499a9c623d72736954ff9a7a8d13cccee2082",
                 "shasum": ""
             },
             "require": {
@@ -7161,7 +7161,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-05T20:35:14+00:00"
+            "time": "2022-09-04T09:43:35+00:00"
         },
         {
             "name": "yiisoft/yii2-faker",
