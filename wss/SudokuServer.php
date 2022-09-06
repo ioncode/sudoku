@@ -78,7 +78,7 @@ class SudokuServer extends WebSocketServer
     {
         parent::init();
         /** @var EventProcessorInterface $processor */
-        $processor = new MessageProccessor();
+        $processor = new MessageProcessor();
         $this->on(self::EVENT_CLIENT_MESSAGE, function (WSClientMessageEvent $e) use ($processor) {
             $processor($e, $this);
         });

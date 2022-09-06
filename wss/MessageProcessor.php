@@ -5,14 +5,15 @@ namespace app\wss;
 use consik\yii2websocket\events\WSClientMessageEvent;
 use Yii;
 
-class MessageProccessor implements EventProcessorInterface
+class MessageProcessor implements EventProcessorInterface
 {
 
     /**
      * @param WSClientMessageEvent $e
+     * @param SudokuServer         $server
      * @return void
      */
-    public function __invoke($e, $server): void
+    public function __invoke($e, SudokuServer $server): void
     {
 
         echo 'Message from client: ' . $e->message . PHP_EOL;
