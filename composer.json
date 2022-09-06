@@ -17,7 +17,8 @@
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
         "consik/yii2-websocket": "^1.0",
-        "abcaeffchen/sudoku-php": "~1.0.0"
+        "abcaeffchen/sudoku-php": "~1.0.0",
+        "practically/psalm-plugin-yii2": "1.x-dev"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
@@ -30,8 +31,7 @@
         "codeception/module-filesystem": "^1.0.0",
         "codeception/module-yii2": "^1.0.0",
         "codeception/module-asserts": "^1.0.0",
-        "vimeo/psalm": "^4.27",
-        "practically/psalm-plugin-yii2": "1.x-dev"
+        "vimeo/psalm": "^4.27"
     },
     "config": {
         "process-timeout": 1800,
