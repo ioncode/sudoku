@@ -28,52 +28,6 @@ class SudokuServer extends WebSocketServer
         parent::__construct($config);
     }
 
-    private function processMessageEvent(WSClientMessageEvent $e)
-    {
-        echo 'Message from client: ' . $e->message . PHP_EOL;
-        if ($json = json_decode($e->message, true)) {
-            echo 'Received json message, try extract commands' . PHP_EOL;
-            print_r($json);
-            if ($json['command'] == 'setCell') {
-                echo 'Command to set cell [' . $json['coordinates']['column'] . ':' . $json['coordinates']['row'] . '] with value ' . $json['value'] . PHP_EOL;
-                $attempt = $this->setCellValue($json['coordinates']['column'], $json['coordinates']['row'], $json['value']);
-                echo $attempt['message'] . PHP_EOL;
-                //print_r($this->currentMatrix);
-                if ($attempt['isAcceptableValue']) {
-                    echo 'Value accepted' . PHP_EOL;
-
-                    // check if it was last cell set author to top list
-                    $continue = false;
-                    foreach ($this->currentMatrix as $column) {
-                        foreach ($column as $cell) {
-                            if ($cell === null) {
-                                $continue = true;
-                                break 2;
-                            }
-                        }
-                    }
-                    if ($continue) {
-                        echo 'Game is not finished, waiting for new commands' . PHP_EOL;
-                    } else {
-                        // set client to top & broadcast new game & top 10
-                        if (!empty($clientName = $json['clientName'])) {
-                            echo $clientName . ' win!' . PHP_EOL;
-                            $this->addToTop($clientName);
-                        }
-                        $this->generate();
-                        Yii::$app->cache->set('sudokuMatrix', json_encode($this->currentMatrix), 3600);
-
-                    }
-                    // send updated matrix to every client
-                    $this->broadcast(json_encode(['matrix' => $this->currentMatrix, 'top' => $this->getTop()]));
-                } else {
-                    $this->broadcast(json_encode(['message' => 'Value declined']));
-                }
-            }
-        }
-        //$e->client->send( $e->message );
-    }
-
     public function init(): void
     {
         parent::init();
