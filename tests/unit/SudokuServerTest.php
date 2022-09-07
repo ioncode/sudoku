@@ -49,11 +49,22 @@ class SudokuServerTest extends Unit
 
     public function testGetTop()
     {
+        $server = new SudokuServer();
+        $server->generate();
+        $player = 'Winner_' . mt_rand(1, 33);
+        $server->addToTop($player);
+        $this->assertIsArray($server->getTop());
 
     }
 
     public function testSetCellValue()
     {
+        $server = new SudokuServer();
+        $server->generate();
+        $response = $server->setCellValue(1, 1, 5);
+        print_r($response);
+        $this->assertArrayHasKey('isAcceptableValue', $response);
+        $this->assertArrayHasKey('message', $response);
 
     }
 
