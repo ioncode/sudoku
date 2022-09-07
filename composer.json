@@ -10,6 +10,12 @@
         "source": "https://github.com/ioncode/sudoku"
     },
     "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "app\\wss\\": "wss/",
+            "app\\commands\\": "commands/"
+        }
+    },
     "require": {
         "php": ">=7.4",
         "ext-json": "*",
@@ -17,8 +23,7 @@
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
         "consik/yii2-websocket": "^1.0",
-        "abcaeffchen/sudoku-php": "~1.0.0",
-        "practically/psalm-plugin-yii2": "1.x-dev"
+        "abcaeffchen/sudoku-php": "~1.0.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
@@ -31,7 +36,9 @@
         "codeception/module-filesystem": "^1.0.0",
         "codeception/module-yii2": "^1.0.0",
         "codeception/module-asserts": "^1.0.0",
-        "vimeo/psalm": "^4.27"
+        "vimeo/psalm": "^4.27",
+        "practically/psalm-plugin-yii2": "1.x-dev",
+        "codeception/module-phpbrowser": "1.x-dev"
     },
     "config": {
         "process-timeout": 1800,

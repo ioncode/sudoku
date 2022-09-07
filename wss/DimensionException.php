@@ -2,7 +2,9 @@
 
 namespace app\wss;
 
-class DimensionException extends \yii\base\ErrorException
+use yii\base\ErrorException;
+
+class DimensionException extends ErrorException
 {
 
 }
