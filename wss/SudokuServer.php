@@ -19,6 +19,11 @@ class SudokuServer extends WebSocketServer
 {
     protected int $dimensions;
 
+    /**
+     * @param int   $dimensions
+     * @param array $config
+     * @throws DimensionException
+     */
     public function __construct(int $dimensions = 9, array $config = [])
     {
         if ($dimensions < 6 or ($dimensions % 3 !== 0)) {
@@ -28,6 +33,9 @@ class SudokuServer extends WebSocketServer
         parent::__construct($config);
     }
 
+    /**
+     * @return void
+     */
     public function init(): void
     {
         parent::init();
@@ -39,7 +47,7 @@ class SudokuServer extends WebSocketServer
         $this->on(self::EVENT_CLIENT_CONNECTED, function (WSClientEvent $e) {
             echo 'Client connected to game:' . PHP_EOL;
             if ($this->currentMatrix) {
-                echo 'We allready have started game, send it to new client' . PHP_EOL;
+                echo 'We already have started game, send it to new client' . PHP_EOL;
                 echo 'Before this connection we had ' . count($this->clients) . ' clients online:' . PHP_EOL;
             } else {
                 echo 'First client, the game is not generated, let me do it, if no one cached before expired' . PHP_EOL;

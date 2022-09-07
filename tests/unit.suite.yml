@@ -7,4 +7,8 @@ modules:
     enabled:
         - Asserts
         - \Helper\Unit
+        - Yii2
+    config:
+        Yii2:
+            configFile: 'config.php'
     step_decorators: ~

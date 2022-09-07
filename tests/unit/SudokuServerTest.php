@@ -8,12 +8,12 @@ use Codeception\Test\Unit;
 class SudokuServerTest extends Unit
 {
 
-    public function testParentClassExists()
+    public function testParentClassExists(): void
     {
         $this->assertTrue(class_exists(Sudoku::class));
     }
 
-    public function testInit()
+    public function testInit(): void
     {
         $this->assertTrue(class_exists(SudokuServer::class));
         $server = false;
@@ -28,8 +28,22 @@ class SudokuServerTest extends Unit
 
     }
 
-    public function testAddToTop()
+    public function testGenerate(): void
     {
+        $server = new SudokuServer();
+        $server->generate();
+        $this->assertNotFalse(Sudoku::solve($server->currentMatrix, true));
+    }
+
+    public function testAddToTop(): void
+    {
+        $server = new SudokuServer();
+        self::assertTrue(Yii::$app->cache->delete('sudokuTop'));
+        $server->generate();
+        $player = 'Winner_' . mt_rand(1, 33);
+        $server->addToTop($player);
+        $top = json_decode(Yii::$app->cache->get('sudokuTop'), true);
+        $this->assertTrue(array_key_exists($player, $top));
 
     }
 
