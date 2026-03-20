@@ -1,0 +1,24 @@
+services:
+  caddy:
+    image: caddy:2.7.6-alpine # Use a stable version
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./web:/var/web
+    networks:
+      - mynetwork
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  mynetwork:
+    driver: bridge
