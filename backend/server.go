@@ -12,15 +12,19 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "0.0.0.0:8080", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
 func echo(w http.ResponseWriter, r *http.Request) {
+	upgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
+	}
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
@@ -46,11 +50,18 @@ func home(w http.ResponseWriter, r *http.Request) {
 	homeTemplate.Execute(w, "ws://"+r.Host+"/echo")
 }
 
+func healthcheck(responseWriter http.ResponseWriter, request *http.Request) {
+	log.Println("HealthCheck requested")
+}
+
 func main() {
 	flag.Parse()
+	log.SetOutput(os.Stdout)
+	log.Println("App started on address", *addr)
 	log.SetFlags(0)
 	http.HandleFunc("/echo", echo)
 	http.HandleFunc("/", home)
+	http.HandleFunc("/hc", healthcheck)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
 
