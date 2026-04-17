@@ -1,9 +1,9 @@
-sudoku.local {
+sudoku.local:80 {
     root * /var/web
     file_server
     # Proxy standard HTTP requests
     reverse_proxy /api/* backend:8001
     
     # Proxy WebSocket requests specifically
-    reverse_proxy /ws* host.docker.internal:8080 
+    reverse_proxy /ws* backend:8080 
 }

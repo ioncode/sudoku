@@ -1,5 +1,5 @@
 console.log('Sudoku client started');
-var conn = new WebSocket('wss://sudoku.local/ws');
+var conn = new WebSocket('ws://localhost:8080');
 //retrieve client name from session or generate new
 if (!sessionStorage.getItem('clientName')) {
     populateClientName();
