@@ -22,6 +22,13 @@ var addr = flag.String("addr", "0.0.0.0:8080", "http service address")
 var upgrader = websocket.Upgrader{} // use default options
 
 func echo(w http.ResponseWriter, r *http.Request) {
+
+	response := map[string]string{
+		"matrix": "222",
+		"top":    "toparray",
+	}
+
+	log.Println("echo requested")
 	upgrader.CheckOrigin = func(r *http.Request) bool {
 		return true
 	}
@@ -31,6 +38,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer c.Close()
+	c.WriteJSON(response)
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
